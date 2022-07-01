@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { Credenciais } from 'src/app/Models/Credenciais';
 import { ToastrService } from 'ngx-toastr';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -21,16 +22,25 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private toast: ToastrService,
-    private router: Router
+    private router: Router,
+    private service : AuthService
   ) { }
 
   ngOnInit(): void { }
 
   logar(){
-
+   this.service.authenticate(this.creds).subscribe(
+      response => {
+        this.service.successfullLogin(response.headers.get('Authorization')?.substring(7) || '');
+        this.router.navigate(['home']);
+      },
+      error => this.toast.error(error.message)
+    )
   }
-  
+
   validaCampos(): boolean {
     return this.email.valid && this.senha.valid
   }
+
+  
 }
